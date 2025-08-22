@@ -1,84 +1,97 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "mspOfferName": {
-            "type": "string",
-            "metadata": {
-                "description": "Specify a unique name for your offer"
-            },
-            "defaultValue": "<to be filled out by MSP> Specify a title for your offer"
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "variables": {
+    "mspOfferName": "ITS Azure Management",
+    "mspOfferDescription": "ITS Azure Management",
+    "managedByTenantId": "8891f31f-3ed1-4752-a351-c82c3802545a",
 
-        },
-        "mspOfferDescription": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the Managed Service Provider offering"
-            },
-            "defaultValue": "<to be filled out by MSP> Provide a brief description of your offer"
-        },
-        "managedByTenantId": {
-            "type": "string",
-            "metadata": {
-                "description": "Specify the tenant id of the Managed Service Provider"
-            },
-            "defaultValue": "<to be filled out by MSP> Provide your tenant id"
-        },
-        "authorizations": {
-            "type": "array",
-            "metadata": {
-                "description": "Specify an array of objects, containing tuples of Azure Active Directory principalId, a Azure roleDefinitionId, and an optional principalIdDisplayName. The roleDefinition specified is granted to the principalId in the provider's Active Directory and the principalIdDisplayName is visible to customers."
-            },
-            "defaultValue": [
-                { 
-                    "principalId": "ee8f6d35-15f2-4252-b1b8-591358e8a244", 
-                    "roleDefinitionId": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
-                    "principalIdDisplayName": "PIM_Group" 
-                }, 
-                { 
-                    "principalId": "ee8f6d35-15f2-4252-b1b8-591358e8a244", 
-                    "roleDefinitionId": "91c1777a-f3dc-4fae-b103-61d183457e46",
-                    "principalIdDisplayName": "PIM_Group" 
-                }   
-            ]
-        }              
-    },
-    "variables": {
-        "mspRegistrationName": "[guid(parameters('mspOfferName'))]",
-        "mspAssignmentName": "[guid(parameters('mspOfferName'))]"
-    },
-    "resources": [
-        {
-            "type": "Microsoft.ManagedServices/registrationDefinitions",
-            "apiVersion": "2019-09-01",
-            "name": "[variables('mspRegistrationName')]",
-            "properties": {
-                "registrationDefinitionName": "[parameters('mspOfferName')]",
-                "description": "[parameters('mspOfferDescription')]",
-                "managedByTenantId": "[parameters('managedByTenantId')]",
-                "authorizations": "[parameters('authorizations')]"
-            }
-        },
-        {
-            "type": "Microsoft.ManagedServices/registrationAssignments",
-            "apiVersion": "2019-09-01",
-            "name": "[variables('mspAssignmentName')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.ManagedServices/registrationDefinitions/', variables('mspRegistrationName'))]"
-            ],
-            "properties": {
-                "registrationDefinitionId": "[resourceId('Microsoft.ManagedServices/registrationDefinitions/', variables('mspRegistrationName'))]"
-            }
-        }
+    // --- PIM Groups ---
+    "pimAuthorizations": [
+      { 
+        "principalId": "ee8f6d35-15f2-4252-b1b8-591358e8a244", 
+        "roleDefinitionId": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
+        "principalIdDisplayName": "PIM_Group Reader" 
+      }, 
+      { 
+        "principalId": "ee8f6d35-15f2-4252-b1b8-591358e8a244", 
+        "roleDefinitionId": "91c1777a-f3dc-4fae-b103-61d183457e46",
+        "principalIdDisplayName": "PIM_Group Managed Services Delete Role" 
+      }
     ],
-    "outputs": {
-        "mspOfferName": {
-            "type": "string",
-            "value": "[concat('Managed by', ' ', parameters('mspOfferName'))]"
-        },
-        "authorizations": {
-            "type": "array",
-            "value": "[parameters('authorizations')]"
-        }
+
+    // --- ITS Groups ---
+    "itsAuthorizations": [
+      { 
+        "principalId": "4fa314f9-f963-4056-a115-9aa732ddf3e2", 
+        "roleDefinitionId": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
+        "principalIdDisplayName": "ITS Reader" 
+      }, 
+      { 
+        "principalId": "92d6a42f-0b65-44f4-88a9-3a06b14fda32", 
+        "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c",
+        "principalIdDisplayName": "ITS Contributor" 
+      }, 
+      { 
+        "principalId": "fc00c6fc-fe58-4e17-98bd-0bcf4c95cfed", 
+        "roleDefinitionId": "43d0d8ad-25c7-4714-9337-8ba259a9fe05",
+        "principalIdDisplayName": "ITS Monitor Reader" 
+      },
+      { 
+        "principalId": "ae66ea64-b6cf-41e9-9446-d834aa6f8bc7", 
+        "roleDefinitionId": "434105ed-43f6-45c7-a02f-909b2ba83430",
+        "principalIdDisplayName": "ITS Cost Management Contributor" 
+      }, 
+      { 
+        "principalId": "98aaa107-1503-46c1-af2c-ea76b9368bbf", 
+        "roleDefinitionId": "91c1777a-f3dc-4fae-b103-61d183457e46",
+        "principalIdDisplayName": "ITS Managed Services Delete Role" 
+      }
+    ],
+
+    // --- Merge ---
+    "authorizations": "[union(variables('pimAuthorizations'), variables('itsAuthorizations'))]",
+
+    "mspRegistrationName": "[guid(variables('mspOfferName'))]",
+    "mspAssignmentName": "[guid(variables('mspOfferName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ManagedServices/registrationDefinitions",
+      "apiVersion": "2019-09-01",
+      "name": "[variables('mspRegistrationName')]",
+      "properties": {
+        "registrationDefinitionName": "[variables('mspOfferName')]",
+        "description": "[variables('mspOfferDescription')]",
+        "managedByTenantId": "[variables('managedByTenantId')]",
+        "authorizations": "[variables('authorizations')]"
+      }
+    },
+    {
+      "type": "Microsoft.ManagedServices/registrationAssignments",
+      "apiVersion": "2019-09-01",
+      "name": "[variables('mspAssignmentName')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedServices/registrationDefinitions/', variables('mspRegistrationName'))]"
+      ],
+      "properties": {
+        "registrationDefinitionId": "[resourceId('Microsoft.ManagedServices/registrationDefinitions/', variables('mspRegistrationName'))]"
+      }
     }
+  ],
+  "outputs": {
+    "mspOfferName": {
+      "type": "string",
+      "value": "[concat('Managed by ', variables('mspOfferName'))]"
+    },
+    "pimAuthorizations": {
+      "type": "array",
+      "value": "[variables('pimAuthorizations')]"
+    },
+    "itsAuthorizations": {
+      "type": "array",
+      "value": "[variables('itsAuthorizations')]"
+    }
+  }
 }
