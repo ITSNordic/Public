@@ -7,50 +7,57 @@
     "mspOfferDescription": "ITS Azure Management",
     "managedByTenantId": "8891f31f-3ed1-4752-a351-c82c3802545a",
 
-    // --- PIM Groups ---
+    // --- PIM Groups (Privileged Identity Management) ---
     "pimAuthorizations": [
       { 
         "principalId": "ee8f6d35-15f2-4252-b1b8-591358e8a244", 
         "roleDefinitionId": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
-        "principalIdDisplayName": "PIM_Group Reader" 
+        "principalIdDisplayName": "PIM_Group Reader",
+        "metadata": { "description": "PIM-assigned Reader role for temporary Just-In-Time access" }
       }, 
       { 
         "principalId": "ee8f6d35-15f2-4252-b1b8-591358e8a244", 
         "roleDefinitionId": "91c1777a-f3dc-4fae-b103-61d183457e46",
-        "principalIdDisplayName": "PIM_Group Managed Services Delete Role" 
+        "principalIdDisplayName": "PIM_Group Managed Services Delete Role",
+        "metadata": { "description": "PIM-assigned role for elevated delete operations" }
       }
     ],
 
-    // --- ITS Groups ---
+    // --- ITS Groups (Permanent Access Assignments) ---
     "itsAuthorizations": [
       { 
         "principalId": "4fa314f9-f963-4056-a115-9aa732ddf3e2", 
         "roleDefinitionId": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
-        "principalIdDisplayName": "ITS Reader" 
+        "principalIdDisplayName": "ITS Reader",
+        "metadata": { "description": "Permanent Reader access for ITS team" }
       }, 
       { 
         "principalId": "92d6a42f-0b65-44f4-88a9-3a06b14fda32", 
         "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c",
-        "principalIdDisplayName": "ITS Contributor" 
+        "principalIdDisplayName": "ITS Contributor",
+        "metadata": { "description": "Permanent Contributor access for ITS team" }
       }, 
       { 
         "principalId": "fc00c6fc-fe58-4e17-98bd-0bcf4c95cfed", 
         "roleDefinitionId": "43d0d8ad-25c7-4714-9337-8ba259a9fe05",
-        "principalIdDisplayName": "ITS Monitor Reader" 
+        "principalIdDisplayName": "ITS Monitor Reader",
+        "metadata": { "description": "Permanent Monitor Reader access for monitoring tools" }
       },
       { 
         "principalId": "ae66ea64-b6cf-41e9-9446-d834aa6f8bc7", 
         "roleDefinitionId": "434105ed-43f6-45c7-a02f-909b2ba83430",
-        "principalIdDisplayName": "ITS Cost Management Contributor" 
+        "principalIdDisplayName": "ITS Cost Management Contributor",
+        "metadata": { "description": "Permanent Cost Management Contributor for billing/finance team" }
       }, 
       { 
         "principalId": "98aaa107-1503-46c1-af2c-ea76b9368bbf", 
         "roleDefinitionId": "91c1777a-f3dc-4fae-b103-61d183457e46",
-        "principalIdDisplayName": "ITS Managed Services Delete Role" 
+        "principalIdDisplayName": "ITS Managed Services Delete Role",
+        "metadata": { "description": "Permanent elevated delete role for ITS team" }
       }
     ],
 
-    // --- Merge ---
+    // --- Merge into one array ---
     "authorizations": "[union(variables('pimAuthorizations'), variables('itsAuthorizations'))]",
 
     "mspRegistrationName": "[guid(variables('mspOfferName'))]",
